@@ -1,5 +1,14 @@
 # music-emotion-recognition
 
+## Datasets
+
+## Metrics
+
+- Categorial: Classification, used by [3]
+- Valance-Arousal: Two-dimensional regression, used by [1, 2], evaluated with Kendall's \tau per song, RMSE (root-mean-squared error) or R^2 score.
+
+For more information, please refer to section 2.3 of [3]. Note that the music emotion can be dynamic, i.e. time varing, such as in [1].
+
 ## References
 [1] [Explaining Perceived Emotion Predictions in Music: an Attentive Approach](https://program.ismir2020.net/poster_1-18.html) - ISMIR 2020
 
