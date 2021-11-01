@@ -2,9 +2,9 @@
 
 ## Datasets
 
-- [AMS (AllMusic Mood Subset)](https://github.com/fdlm/listening-moods): multi-label classification dataset, 53585, 6695, 6713 tracks for training, validation and test, 188 mood tags, from [3]
-- [1000 Songs for Emotional Analysis of Music](https://dl.acm.org/doi/10.1145/2506364.2506365): both dynamic and static V-A annotations, from [5]. [1] uses different feature sets including spectral features, chroma ir ComPare feature set. Please refer to [1] for more details on features.
-- [PMEmo](https://dl.acm.org/doi/10.1145/3206025.3206037): both dynamic and static V-A annotations and some features, from [6], used in [2].
+- [AMS (AllMusic Mood Subset)](https://github.com/fdlm/listening-moods): multi-label classification dataset, 53585, 6695, 6713 tracks for training, validation and test, 188 mood tags, from [3] (不用这个了)
+- [1000 Songs for Emotional Analysis of Music](https://cvml.unige.ch/databases/emoMusic/): both dynamic and static V-A annotations, from [5]. [1] uses different feature sets including spectral features, chroma ir ComPare feature set. Please refer to [1] for more details on features.
+- [PMEmo](https://github.com/HuiZhangDB/PMEmo): both dynamic and static V-A annotations and some features, from [6], used in [2].
 
 ## Metrics
 
