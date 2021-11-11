@@ -2,13 +2,11 @@
 
 ## Datasets
 
-- [AMS (AllMusic Mood Subset)](https://github.com/fdlm/listening-moods): multi-label classification dataset, 53585, 6695, 6713 tracks for training, validation and test, 188 mood tags, from [3] (不用这个了)
-- [1000 Songs for Emotional Analysis of Music](https://cvml.unige.ch/databases/emoMusic/): both dynamic and static V-A annotations, from [5]. [1] uses different feature sets including spectral features, chroma ir ComPare feature set. Please refer to [1] for more details on features.
-- [PMEmo](https://github.com/HuiZhangDB/PMEmo): both dynamic and static V-A annotations and some features, from [6], used in [2].
+- [1000 Songs for Emotional Analysis of Music](https://cvml.unige.ch/databases/emoMusic/): both dynamic and static V-A annotations, from [5]. [1] uses different feature sets including spectral features, chroma or ComPare feature set. Please refer to [1] for more details on features. Features extracted by openSMILE are already available.
+- [PMEmo](https://github.com/HuiZhangDB/PMEmo): both dynamic and static V-A annotations and some features, from [6], used in [2]. Features extracted by openSMILE are already available.
 
 ## Metrics
 
-- Categorial: Multi-label classification, used by [3]
 - Valance-Arousal: Two-dimensional regression, used by [1, 2], evaluated with Kendall's \tau per song, RMSE (root-mean-squared error) or R^2 score.
 
 For more information, please refer to section 2.3 of [3]. Note that the music emotion can be dynamic, i.e. time varing, such as in [1].
@@ -25,3 +23,29 @@ For more information, please refer to section 2.3 of [3]. Note that the music em
 [5] [1000 Songs for Emotional Analysis of Music](https://dl.acm.org/doi/10.1145/2506364.2506365) - ACM CrowdMM 2013
 
 [6] [The PMEmo Dataset for Music Emotion Recognition](https://dl.acm.org/doi/10.1145/3206025.3206037) - ICMR 2018
+
+## File preparation
+
+```
+|-- dataset
+|  |-- PMEmo2019
+|    |-- annotations
+|      |-- dynamic_annotations.csv
+|    |-- chorus		// .mp3 files
+|    |-- features
+|      |-- dynamic_features.csv
+|-- models
+|  |-- models
+|    |-- model1.py
+|    |-- model2.py
+|-- preprocess
+|-- dataloader.py
+|-- metrics.py
+|-- train.py
+```
+
+## Training
+Run
+```
+python train.py
+```
