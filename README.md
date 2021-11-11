@@ -28,16 +28,16 @@ For more information, please refer to section 2.3 of [3]. Note that the music em
 
 ```
 |-- dataset
-|	|-- PMEmo2019
-|		|-- annotations
-|			|-- dynamic_annotations.csv
-|		|-- chorus		// .mp3 files
-|		|-- features
-|		 	|-- dynamic_features.csv
+|  |-- PMEmo2019
+|    |-- annotations
+|      |-- dynamic_annotations.csv
+|    |-- chorus		// .mp3 files
+|    |-- features
+|      |-- dynamic_features.csv
 |-- models
-|	|-- models
-|		|-- model1.py
-|		|-- model2.py
+|  |-- models
+|    |-- model1.py
+|    |-- model2.py
 |-- preprocess
 |-- dataloader.py
 |-- metrics.py
@@ -46,4 +46,4 @@ For more information, please refer to section 2.3 of [3]. Note that the music em
 
 ## Training
 Run
-`python train.py`
+```python train.py```
