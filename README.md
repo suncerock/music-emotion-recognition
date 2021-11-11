@@ -25,6 +25,7 @@ For more information, please refer to section 2.3 of [3]. Note that the music em
 [6] [The PMEmo Dataset for Music Emotion Recognition](https://dl.acm.org/doi/10.1145/3206025.3206037) - ICMR 2018
 
 ## File preparation
+After preparing the dataset as below, goto `utils/opensmile_dataloader.py` and modify `DATASET_DIR` in line 10
 
 ```
 |-- dataset
@@ -38,9 +39,7 @@ For more information, please refer to section 2.3 of [3]. Note that the music em
 |  |-- models
 |    |-- model1.py
 |    |-- model2.py
-|-- preprocess
-|-- dataloader.py
-|-- metrics.py
+|-- checkpoint  // You might create the directory to store the trained model
 |-- train.py
 ```
 
