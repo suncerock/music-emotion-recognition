@@ -46,4 +46,6 @@ For more information, please refer to section 2.3 of [3]. Note that the music em
 
 ## Training
 Run
-```python train.py```
+```
+python train.py
+```
