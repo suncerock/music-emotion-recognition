@@ -22,6 +22,6 @@ class Linear(nn.Module):
 
     def forward(self, x):
         feature = self.linear(x)
-        arousal_pred = self.linear_arousal(feature).squeeze(dim=-1)
-        valence_pred = self.linear_valence(feature).squeeze(dim=-1)
+        arousal_pred = self.linear_arousal(feature).squeeze(dim=-1).mean(dim=-1)
+        valence_pred = self.linear_valence(feature).squeeze(dim=-1).mean(dim=-1)
         return arousal_pred, valence_pred

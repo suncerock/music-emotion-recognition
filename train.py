@@ -5,8 +5,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from utils.opensmile_dataloader import build_opensmile_dynamic_dataloaer
+from utils.opensmile_dataloader import build_opensmile_dataloader
 from utils.metrics import compute_metric  # TODO: support kendall's tau, fix R^2, !! only use RMSE now !!
+from models.attention import *
 from models.linear import Linear
 
 
@@ -29,21 +30,21 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     ############### Please modify the model here ##############
-    model = Linear().to(device)
+    model = MultiLayerLSTM().to(device)
     # model.load_state_dict(torch.load(os.path.join(save_dir, 'checkpoint_epoch_15.pth')))
 
-    print("{:.2f}K parameters!".format(sum([np.prod(x.shape) for x in model.parameters()]) / 1000))
+    print("{:.2f}M parameters!".format(sum([np.prod(x.shape) for x in model.parameters()]) / 1000000))
 
     ############# You might want to use your own dataloader here ##############
-    train_dataloader, valid_dataloader = build_opensmile_dynamic_dataloaer(batch_size=64)
+    train_dataloader, valid_dataloader = build_opensmile_dataloader(batch_size=32)
     
     ############## Adjust the loss function and optimizer here ################
     train_loss_fn = nn.MSELoss().to(device)
     valid_loss_fn = nn.MSELoss().to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=0.01)
 
     
-    num_epoch = 50
+    num_epoch = 100
     for epoch in range(num_epoch):
         train_one_epoch(epoch, model, train_dataloader, optimizer, train_loss_fn, log_interval=100)
         validate(model, valid_dataloader, valid_loss_fn)
@@ -62,7 +63,7 @@ def train_one_epoch(epoch, model, loader, optimizer, loss_fn, lr_scheduler=None,
     end = time.time()
     last_idx = len(loader) - 1
     num_updates = epoch * len(loader)
-    for batch_idx, (X, y_arousal, y_valence, music_id) in enumerate(loader):
+    for batch_idx, (X, y_arousal, y_valence) in enumerate(loader):
         last_batch = batch_idx == last_idx
         
         pred_arousal, pred_valence = model(X.to(device))
@@ -114,16 +115,14 @@ def validate(model, loader, loss_fn):
         y_valence_all = []
         pred_arousal_all = []
         pred_valence_all = []
-        music_id_all = []
-        for batch_idx, (X, y_arousal, y_valence, music_id) in enumerate(loader):
-            pred_arousal, pred_valence = model(X.to(device))
 
+        for batch_idx, (X, y_arousal, y_valence) in enumerate(loader):
+            pred_arousal, pred_valence = model(X.to(device))
 
             y_arousal_all.append(y_arousal.numpy())
             y_valence_all.append(y_valence.numpy())
             pred_arousal_all.append(pred_arousal.detach().numpy())
             pred_valence_all.append(pred_valence.detach().numpy())
-            music_id_all.append(music_id)
 
             loss = loss_fn(pred_arousal, y_arousal.to(device)) + loss_fn(pred_valence, y_valence.to(device))
             losses_m.update(loss.item(), pred_arousal.size(0))
@@ -136,11 +135,10 @@ def validate(model, loader, loss_fn):
         y_valence = np.hstack(y_valence_all)
         pred_arousal = np.hstack(pred_arousal_all)
         pred_valence = np.hstack(pred_valence_all)
-        music_id = np.hstack(music_id_all)
-    
+
     output = dict(arousal=pred_arousal, valence=pred_valence)
     target = dict(arousal=y_arousal, valence=y_valence)
-    results = compute_metric(output, target, music_id)
+    results = compute_metric(output, target)
 
     print(
         'Valid  '
@@ -152,12 +150,12 @@ def validate(model, loader, loss_fn):
         )
     print(
         """
-        Result\tRMSE by seg\tR2 by seg\tRMSE by song\tR2 by song
-        Arousal\t{:11.2f}\t{:9.2f}\t{:12.2f}\t{:10.2f}
-        Valence\t{:11.2f}\t{:9.2f}\t{:12.2f}\t{:10.2f}
+        Result\tRMSE\tR2
+        Arousal\t{:4.2f}\t{:2.2f}
+        Valence\t{:4.2f}\t{:2.2f}
         """.format(
-            results['rmse_segments_arousal'], results['r2_segments_arousal'], results['rmse_songs_arousal'], results['r2_songs_arousal'],
-            results['rmse_segments_valence'], results['r2_segments_valence'], results['rmse_songs_valence'], results['r2_songs_valence']
+            results['rmse_arousal'], results['r2_arousal'],
+            results['rmse_valence'], results['r2_valence'],
         )
     )
 
