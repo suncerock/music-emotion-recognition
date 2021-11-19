@@ -6,8 +6,9 @@ import torch
 import torch.nn as nn
 
 from utils.opensmile_dataloader import build_opensmile_dataloader
+from utils.online_dataloader import build_online_dataloader
 from utils.metrics import compute_metric  # TODO: support kendall's tau, fix R^2, !! only use RMSE now !!
-from models.attention import *
+from models.vgg import VGG
 from models.linear import Linear
 
 
@@ -30,13 +31,13 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     ############### Please modify the model here ##############
-    model = MultiLayerLSTM().to(device)
+    model = VGG().to(device)
     # model.load_state_dict(torch.load(os.path.join(save_dir, 'checkpoint_epoch_15.pth')))
 
     print("{:.2f}M parameters!".format(sum([np.prod(x.shape) for x in model.parameters()]) / 1000000))
 
     ############# You might want to use your own dataloader here ##############
-    train_dataloader, valid_dataloader = build_opensmile_dataloader(batch_size=32)
+    train_dataloader, valid_dataloader = build_online_dataloader(batch_size=32, shuffle=True)
     
     ############## Adjust the loss function and optimizer here ################
     train_loss_fn = nn.MSELoss().to(device)
