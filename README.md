@@ -48,3 +48,17 @@ Run
 ```
 python train.py
 ```
+
+## Results
+### OpenSmile Feature
+Random 20s
+| Model  | RMSE (Arousal) | RMSE (Valence) | Parameters |
+| ------ | -------------- | -------------- | ---------- |
+| VGG    | 9.9999         | 9.9999         | 9.97M      |
+
+
+### Spectrogram Feature
+Random 20s, sr=22050, n_fft=2048, win_length=2048, hop_size=512, n_mels=128
+| Model  | RMSE (Arousal) | RMSE (Valence) | Parameters |
+| ------ | -------------- | -------------- | ---------- |
+| VGG    | 9.9999         | 9.9999         | 9.97M      |
