@@ -1,5 +1,6 @@
 import os
 import time
+import pickle
 
 import librosa
 import numpy as np
@@ -21,7 +22,7 @@ class PMEmoDataset(Data.Dataset):
         self.music_id = music_id
 
     def __getitem__(self, item):  # item 就是label表中的序号
-        return self._audio2Mel(self.X_path[item]), self.y_arousal[item], self.y_valence[item], self.music_id[item]
+        return self._audio2Mel(self.X_path[item]), self.y_arousal[item], self.y_valence[item]# , self.music_id[item]
 
     def __len__(self):
         return len(self.music_id)
@@ -31,7 +32,15 @@ class PMEmoDataset(Data.Dataset):
         load melspec to for audio.
         '''
         # 生成结尾前10s的随机数，保证长度为spec_duration
-        y, sr = librosa.load(audioFilePath, sr=sampling_rate)
+
+        if not os.path.exists(audioFilePath.replace('mp3', 'pkl').replace('chorus', 'audio')):
+            y, sr = librosa.load(audioFilePath, sr=sampling_rate)
+            with open(audioFilePath.replace('mp3', 'pkl').replace('chorus', 'audio'), 'wb') as f:
+                pickle.dump(y, f)
+        else:
+            with open(audioFilePath.replace('mp3', 'pkl').replace('chorus', 'audio'), 'rb') as f:
+                y, sr = pickle.load(f), sampling_rate
+
         if len(y) < spec_duration * sr:
             y = np.pad(y, pad_width=((0, spec_duration * sr - len(y))))
             spec_offset = 0
@@ -64,13 +73,11 @@ def load_data(dataset_name='PMEmo2019', mode='static', normalize_label=True):
     trainset = dataset[~iftestset]
     
     # obtain train and test data
-    featureNames = dataset.columns[2:-2]
+    y_train_arousal = np.array(trainset['Arousal(mean)'], dtype=np.float32)
+    y_train_valence = np.array(trainset['Valence(mean)'], dtype=np.float32)
 
-    y_train_arousal = np.array(trainset['Arousal(mean)'])
-    y_train_valence = np.array(trainset['Valence(mean)'])
-
-    y_test_arousal = np.array(testset['Arousal(mean)'])
-    y_test_valence = np.array(testset['Valence(mean)'])
+    y_test_arousal = np.array(testset['Arousal(mean)'], dtype=np.float32)
+    y_test_valence = np.array(testset['Valence(mean)'], dtype=np.float32)
 
     music_id_train = np.array(trainset['musicId'])
     music_id_test = np.array(testset['musicId'])
@@ -91,13 +98,13 @@ def load_data(dataset_name='PMEmo2019', mode='static', normalize_label=True):
     return X_train_path, y_train_arousal, y_train_valence, X_test_path, y_test_arousal, y_test_valence, music_id_train, music_id_test
 
 
-def build_online_dataloader(batch_size=16):
+def build_online_dataloader(batch_size=16, shuffle=False):
     X_train_path, y_train_arousal, y_train_valence, X_valid_path, y_valid_arousal, y_valid_valence, music_id_train, music_id_valid = load_data()
 
     train_dataset = PMEmoDataset(X_train_path, y_train_arousal, y_train_valence, music_id_train)
     valid_dataset = PMEmoDataset(X_valid_path, y_valid_arousal, y_valid_valence, music_id_valid)
 
-    train_dataloader = Data.DataLoader(train_dataset, batch_size=batch_size)
+    train_dataloader = Data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     valid_dataloader = Data.DataLoader(valid_dataset, batch_size=batch_size)
 
     return train_dataloader, valid_dataloader

@@ -27,8 +27,6 @@ def compute_r2(output, target):
 def compute_metric(output, target):
     output_arousal, output_valence = output['arousal'], output['valence']
     target_arousal, target_valence = target['arousal'], target['valence']
-    print(output_arousal[:6])
-    print(target_arousal[:6])
     return dict(
         r2_arousal=compute_r2(output_arousal, target_arousal),
         r2_valence=compute_r2(output_valence, target_valence),

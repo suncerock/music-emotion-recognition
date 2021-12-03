@@ -5,12 +5,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from utils.opensmile_dataloader import build_opensmile_dataloader
-from utils.online_dataloader import build_online_dataloader
+from data import build_1000song_dataloader
+# from utils.opensmile_dataloader import build_opensmile_dataloader
+# from utils.online_dataloader import build_online_dataloader
 from utils.metrics import compute_metric  # TODO: support kendall's tau, fix R^2, !! only use RMSE now !!
 from models.vgg import VGG
 from models.linear import Linear
-
+from config import Config
 
 class AverageMeter(object):
     def __init__(self):
@@ -29,15 +30,16 @@ class AverageMeter(object):
 def main():
     save_dir = './checkpoint'
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    config = Config()
 
     ############### Please modify the model here ##############
-    model = VGG().to(device)
+    model = VGG(**config.model_cfg).to(device)
     # model.load_state_dict(torch.load(os.path.join(save_dir, 'checkpoint_epoch_15.pth')))
 
     print("{:.2f}M parameters!".format(sum([np.prod(x.shape) for x in model.parameters()]) / 1000000))
 
     ############# You might want to use your own dataloader here ##############
-    train_dataloader, valid_dataloader = build_online_dataloader(batch_size=32, shuffle=True)
+    train_dataloader, valid_dataloader = build_1000song_dataloader(**config.data_cfg)
     
     ############## Adjust the loss function and optimizer here ################
     train_loss_fn = nn.MSELoss().to(device)
@@ -62,7 +64,7 @@ def train_one_epoch(epoch, model, loader, optimizer, loss_fn, lr_scheduler=None,
     model.train()
 
     end = time.time()
-    last_idx = len(loader) - 1
+    last_idx = len(loader)# - 1
     num_updates = epoch * len(loader)
     for batch_idx, (X, y_arousal, y_valence) in enumerate(loader):
         last_batch = batch_idx == last_idx
@@ -144,21 +146,15 @@ def validate(model, loader, loss_fn):
     print(
         'Valid  '
         'Loss: {loss.avg:#.3g} '
-        'Time: {batch_time.avg:.3f}s,'.format(
+        'Time: {batch_time.avg:.3f}s   '
+        'RMSE(Arousal): {:.4f}   '
+        'RMSE(Valence): {:.4f}   '.format(
+            results['rmse_arousal'],
+            results['rmse_valence'],
             loss=losses_m,
             batch_time=batch_time_m
             )
         )
-    print(
-        """
-        Result\tRMSE\tR2
-        Arousal\t{:4.2f}\t{:2.2f}
-        Valence\t{:4.2f}\t{:2.2f}
-        """.format(
-            results['rmse_arousal'], results['r2_arousal'],
-            results['rmse_valence'], results['r2_valence'],
-        )
-    )
 
 
 

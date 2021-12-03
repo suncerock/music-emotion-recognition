@@ -85,7 +85,7 @@ class OpenSmileDataset(Data.Dataset):
         return len(self.music_id)
 
 
-def build_opensmile_dataloader(batch_size=64, chunk_size=40):
+def build_opensmile_dataloader(batch_size=64, chunk_size=40, shuffle=False):
     X_train_song, X_valid_song = [], []
     X_train, _, _, X_valid, _, _, music_id_train_seg, music_id_valid_seg = load_data(mode='dynamic')
     _, y_train_arousal, y_train_valence, _, y_valid_arousal, y_valid_valence, music_id_train, music_id_valid = load_data(mode='static')
@@ -117,7 +117,7 @@ def build_opensmile_dataloader(batch_size=64, chunk_size=40):
     train_dataset = OpenSmileDataset(X_train_song, y_train_arousal, y_train_valence, music_id_train)
     valid_dataset = OpenSmileDataset(X_train_song, y_valid_arousal, y_valid_valence, music_id_valid)
 
-    train_dataloader = Data.DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn)
+    train_dataloader = Data.DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn, shuffle=shuffle)
     valid_dataloader = Data.DataLoader(valid_dataset, batch_size=batch_size, collate_fn=collate_fn)
 
     return train_dataloader, valid_dataloader
